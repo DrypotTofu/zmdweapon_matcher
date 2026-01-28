@@ -13,7 +13,37 @@ class WeaponMatcher:
             data = json.load(f)
         self.weapons = data['weapons']
     
-    def find_matching_weapons(
+    def filter_weapons(
+        self,
+        substrate_base: str = None,
+        substrate_additional: str = None,
+        substrate_skill: str = None
+    ) -> List[Dict]:
+        """
+        根据指定属性筛选武器，未指定的属性将不作为筛选条件
+        
+        Args:
+            substrate_base: 基础属性（可选）
+            substrate_additional: 附加属性（可选）
+            substrate_skill: 技能属性（可选）
+        
+        Returns:
+            返回符合条件的武器列表
+        """
+        filtered = self.weapons
+        
+        if substrate_base:
+            filtered = [w for w in filtered if w['base_attribute'] == substrate_base]
+        if substrate_additional:
+            filtered = [w for w in filtered if w['additional_attribute'] == substrate_additional]
+        if substrate_skill:
+            filtered = [w for w in filtered if w['skill_attribute'] == substrate_skill]
+        
+        return [{
+            'name': w['name'],
+            'stars': w['stars'],
+            'type': w['type']
+        } for w in filtered]
         self, 
         substrate_base: str, 
         substrate_additional: str, 
@@ -59,7 +89,7 @@ class WeaponMatcher:
         Returns:
             匹配结果字符串
         """
-        results = self.find_matching_weapons(substrate_base, substrate_additional, substrate_skill)
+        results = self.filter_weapons(substrate_base, substrate_additional, substrate_skill)
         
         if results:
             if len(results) == 1:

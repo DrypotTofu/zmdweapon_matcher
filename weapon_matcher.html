@@ -402,6 +402,97 @@
                 option.textContent = attr;
                 skillSelect.appendChild(option);
             });
+
+            // 添加变化事件监听器
+            baseSelect.addEventListener('change', updateWeaponPool);
+            additionalSelect.addEventListener('change', updateWeaponPool);
+            skillSelect.addEventListener('change', updateWeaponPool);
+        }
+
+        // 筛选武器池
+        function filterWeaponPool() {
+            const base = document.getElementById('baseAttr').value;
+            const additional = document.getElementById('additionalAttr').value;
+            const skill = document.getElementById('skillAttr').value;
+
+            let filtered = weaponsData.weapons;
+
+            if (base) {
+                filtered = filtered.filter(w => w.base_attribute === base);
+            }
+            if (additional) {
+                filtered = filtered.filter(w => w.additional_attribute === additional);
+            }
+            if (skill) {
+                filtered = filtered.filter(w => w.skill_attribute === skill);
+            }
+
+            return filtered;
+        }
+
+        // 更新武器池显示
+        function updateWeaponPool() {
+            const filtered = filterWeaponPool();
+            const base = document.getElementById('baseAttr').value;
+            const additional = document.getElementById('additionalAttr').value;
+            const skill = document.getElementById('skillAttr').value;
+
+            // 如果选择完整（三个属性都选了），显示匹配结果
+            if (base && additional && skill) {
+                const weapons = filtered;
+                showResult(weapons);
+            } else if (base || additional || skill) {
+                // 显示当前武器池
+                showWeaponPool(filtered);
+            } else {
+                // 重置结果显示
+                const resultDiv = document.getElementById('result');
+                resultDiv.classList.remove('show');
+                resultDiv.innerHTML = '';
+            }
+        }
+
+        // 显示当前武器池
+        function showWeaponPool(weapons) {
+            const resultDiv = document.getElementById('result');
+
+            if (weapons && weapons.length > 0) {
+                let poolHTML = `
+                    <div class="result-header" style="background: linear-gradient(135deg, #52c41a 0%, #13c2c2 100%);">
+                        <span class="result-icon">🔍</span>
+                        <span>武器池 (${weapons.length} 个)</span>
+                    </div>
+                    <div style="padding: 15px; background: #f9f9f9; border-radius: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                `;
+
+                weapons.forEach(weapon => {
+                    poolHTML += `
+                        <div style="padding: 10px; background: white; border-radius: 8px; border: 1px solid #e0e0e0; font-size: 13px;">
+                            <div style="font-weight: 600; color: #333; margin-bottom: 5px;">${weapon.name}</div>
+                            <div style="color: #999; font-size: 12px; margin-bottom: 3px;">${weapon.type}</div>
+                            <div style="color: #ff6b6b; font-weight: 600;">${weapon.stars}</div>
+                        </div>
+                    `;
+                });
+
+                poolHTML += `
+                        </div>
+                    </div>
+                `;
+
+                resultDiv.innerHTML = poolHTML;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result-header failed">
+                        <span class="result-icon">✕</span>
+                        <span>无匹配武器</span>
+                    </div>
+                    <div class="no-match">当前筛选条件没有对应的武器</div>
+                `;
+            }
+
+            resultDiv.classList.add('show');
         }
 
         // 查找所有匹配的武器
@@ -481,7 +572,7 @@
                 return;
             }
 
-            const weapons = findMatchingWeapons(base, additional, skill);
+            const weapons = filterWeaponPool();
             showResult(weapons);
 
             // 滚动到结果区域
