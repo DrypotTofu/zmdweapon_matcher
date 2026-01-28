@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>武器匹配系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            color: #333;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            cursor: pointer;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+            background: #e0e0e0;
+        }
+
+        .result-card {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-header.success {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .result-header.failed {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .result-icon {
+            font-size: 24px;
+        }
+
+        .weapon-info {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .info-value.stars {
+            color: #ff6b6b;
+        }
+
+        .no-match {
+            text-align: center;
+            padding: 20px;
+            color: #f5576c;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .info-section {
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .info-group {
+            margin-bottom: 15px;
+        }
+
+        .info-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .info-group-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .form-group label {
+                font-size: 15px;
+            }
+
+            .form-group select {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ 武器匹配系统</h1>
+            <p>找到属于你的完美武器</p>
+        </div>
+
+        <div class="card">
+            <form id="matchForm">
+                <div class="form-group">
+                    <label for="baseAttr">基础属性</label>
+                    <select id="baseAttr" required>
+                        <option value="">请选择基础属性</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalAttr">附加属性</label>
+                    <select id="additionalAttr" required>
+                        <option value="">请选择附加属性</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="skillAttr">技能属性</label>
+                    <select id="skillAttr" required>
+                        <option value="">请选择技能属性</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">查询武器</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">重置选择</button>
+                </div>
+            </form>
+
+            <div id="result" class="result-card"></div>
+        </div>
+
+        <div class="card info-section">
+            <div class="info-title">📋 属性说明</div>
+            <div class="info-group">
+                <div class="info-group-title">基础属性</div>
+                <div class="info-group-text">敏捷、力量、意志、智识、主能力</div>
+            </div>
+            <div class="info-group">
+                <div class="info-group-title">附加属性</div>
+                <div class="info-group-text">攻击、生命、物理伤害、灼热伤害、电磁伤害、寒冷伤害、自然伤害、暴击率、源石技艺、治疗效率、终结技效率、法术伤害</div>
+            </div>
+            <div class="info-group">
+                <div class="info-group-title">技能属性</div>
+                <div class="info-group-text">强攻、压制、追袭、粉碎、昂扬、巧技、残暴、附术、医疗、切骨、迸发、夜幕、流转、效益</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 武器数据
+        const weaponsData = {
+            weapons: [
+                {name: "白夜新星", type: "单手剑", stars: "6星", base_attribute: "主能力", additional_attribute: "源石技艺", skill_attribute: "附术"},
+                {name: "显赫声名", type: "单手剑", stars: "6星", base_attribute: "主能力", additional_attribute: "物理伤害", skill_attribute: "残暴"},
+                {name: "热熔切割器", type: "单手剑", stars: "6星", base_attribute: "意志", additional_attribute: "攻击", skill_attribute: "流转"},
+                {name: "扶摇", type: "单手剑", stars: "6星", base_attribute: "主能力", additional_attribute: "暴击率", skill_attribute: "夜幕"},
+                {name: "黯色火炬", type: "单手剑", stars: "6星", base_attribute: "智识", additional_attribute: "灼热伤害", skill_attribute: "附术"},
+                {name: "熔铸火焰", type: "单手剑", stars: "6星", base_attribute: "智识", additional_attribute: "攻击", skill_attribute: "夜幕"},
+                {name: "不知归", type: "单手剑", stars: "6星", base_attribute: "意志", additional_attribute: "攻击", skill_attribute: "流转"},
+                {name: "宏愿", type: "单手剑", stars: "6星", base_attribute: "敏捷", additional_attribute: "攻击", skill_attribute: "附术"},
+                {name: "仰止", type: "单手剑", stars: "5星", base_attribute: "敏捷", additional_attribute: "物理伤害", skill_attribute: "夜幕"},
+                {name: "O.B.J.轻芒", type: "单手剑", stars: "5星", base_attribute: "敏捷", additional_attribute: "攻击", skill_attribute: "流转"},
+                {name: "十二问", type: "单手剑", stars: "5星", base_attribute: "敏捷", additional_attribute: "攻击", skill_attribute: "附术"},
+                {name: "逆鳞3.0", type: "单手剑", stars: "5星", base_attribute: "力量", additional_attribute: "寒冷伤害", skill_attribute: "压制"},
+                {name: "坚城铸造者", type: "单手剑", stars: "5星", base_attribute: "智识", additional_attribute: "终结技效率", skill_attribute: "昂扬"},
+                {name: "钢铁余音", type: "单手剑", stars: "5星", base_attribute: "敏捷", additional_attribute: "物理伤害", skill_attribute: "巧技"},
+                {name: "破碎君王", type: "双手剑", stars: "6星", base_attribute: "力量", additional_attribute: "暴击率", skill_attribute: "粉碎"},
+                {name: "昔日精品", type: "双手剑", stars: "6星", base_attribute: "意志", additional_attribute: "生命", skill_attribute: "效益"},
+                {name: "典范", type: "双手剑", stars: "6星", base_attribute: "主能力", additional_attribute: "攻击", skill_attribute: "压制"},
+                {name: "赫拉芬格", type: "双手剑", stars: "6星", base_attribute: "力量", additional_attribute: "攻击", skill_attribute: "迸发"},
+                {name: "大雷斑", type: "双手剑", stars: "6星", base_attribute: "力量", additional_attribute: "生命", skill_attribute: "医疗"},
+                {name: "O.B.J.重荷", type: "双手剑", stars: "5星", base_attribute: "力量", additional_attribute: "生命", skill_attribute: "效益"},
+                {name: "终点之声", type: "双手剑", stars: "5星", base_attribute: "力量", additional_attribute: "生命", skill_attribute: "医疗"},
+                {name: "古渠", type: "双手剑", stars: "5星", base_attribute: "力量", additional_attribute: "源石技艺", skill_attribute: "残暴"},
+                {name: "探骊", type: "双手剑", stars: "5星", base_attribute: "力量", additional_attribute: "终结技效率", skill_attribute: "迸发"},
+                {name: "J.E.T.", type: "长柄武器", stars: "6星", base_attribute: "主能力", additional_attribute: "攻击", skill_attribute: "压制"},
+                {name: "骁勇", type: "长柄武器", stars: "6星", base_attribute: "敏捷", additional_attribute: "物理伤害", skill_attribute: "巧技"},
+                {name: "负山", type: "长柄武器", stars: "6星", base_attribute: "敏捷", additional_attribute: "物理伤害", skill_attribute: "效益"},
+                {name: "向心之引", type: "长柄武器", stars: "5星", base_attribute: "意志", additional_attribute: "电磁伤害", skill_attribute: "压制"},
+                {name: "O.B.J.尖峰", type: "长柄武器", stars: "5星", base_attribute: "意志", additional_attribute: "物理伤害", skill_attribute: "附术"},
+                {name: "嵌合正义", type: "长柄武器", stars: "5星", base_attribute: "力量", additional_attribute: "终结技效率", skill_attribute: "残暴"},
+                {name: "楔子", type: "手铳", stars: "6星", base_attribute: "主能力", additional_attribute: "暴击率", skill_attribute: "附术"},
+                {name: "同类相食", type: "手铳", stars: "6星", base_attribute: "主能力", additional_attribute: "法术伤害", skill_attribute: "附术"},
+                {name: "领航者", type: "手铳", stars: "6星", base_attribute: "智识", additional_attribute: "寒冷伤害", skill_attribute: "附术"},
+                {name: "艺术暴君", type: "手铳", stars: "6星", base_attribute: "智识", additional_attribute: "暴击率", skill_attribute: "切骨"},
+                {name: "理性告别", type: "手铳", stars: "5星", base_attribute: "力量", additional_attribute: "灼热伤害", skill_attribute: "追袭"},
+                {name: "O.B.J.迅极", type: "手铳", stars: "5星", base_attribute: "敏捷", additional_attribute: "终结技效率", skill_attribute: "迸发"},
+                {name: "作品众生", type: "手铳", stars: "5星", base_attribute: "敏捷", additional_attribute: "法术伤害", skill_attribute: "附术"},
+                {name: "骑士精神", type: "施术单元", stars: "6星", base_attribute: "意志", additional_attribute: "生命", skill_attribute: "医疗"},
+                {name: "遗忘", type: "施术单元", stars: "6星", base_attribute: "智识", additional_attribute: "法术伤害", skill_attribute: "夜幕"},
+                {name: "爆破单元", type: "施术单元", stars: "6星", base_attribute: "主能力", additional_attribute: "源石技艺", skill_attribute: "迸发"},
+                {name: "作品蚀迹", type: "施术单元", stars: "6星", base_attribute: "意志", additional_attribute: "自然伤害", skill_attribute: "压制"},
+                {name: "沧溟星梦", type: "施术单元", stars: "6星", base_attribute: "智识", additional_attribute: "治疗效率", skill_attribute: "附术"},
+                {name: "使命必达", type: "施术单元", stars: "6星", base_attribute: "意志", additional_attribute: "终结技效率", skill_attribute: "追袭"},
+                {name: "O.B.J.术识", type: "施术单元", stars: "5星", base_attribute: "智识", additional_attribute: "源石技艺", skill_attribute: "追袭"},
+                {name: "布道自由", type: "施术单元", stars: "5星", base_attribute: "意志", additional_attribute: "治疗效率", skill_attribute: "医疗"},
+                {name: "迷失荒野", type: "施术单元", stars: "5星", base_attribute: "智识", additional_attribute: "电磁伤害", skill_attribute: "附术"},
+                {name: "莫奈何", type: "施术单元", stars: "5星", base_attribute: "意志", additional_attribute: "终结技效率", skill_attribute: "昂扬"},
+                {name: "悼亡诗", type: "施术单元", stars: "5星", base_attribute: "智识", additional_attribute: "攻击", skill_attribute: "夜幕"}
+            ]
+        };
+
+        // 属性选项
+        const attributes = {
+            base: ['敏捷', '力量', '意志', '智识', '主能力'],
+            additional: ['攻击', '生命', '物理伤害', '灼热伤害', '电磁伤害', '寒冷伤害', '自然伤害', '暴击率', '源石技艺', '治疗效率', '终结技效率', '法术伤害'],
+            skill: ['强攻', '压制', '追袭', '粉碎', '昂扬', '巧技', '残暴', '附术', '医疗', '切骨', '迸发', '夜幕', '流转', '效益']
+        };
+
+        // 初始化下拉选项
+        function initSelects() {
+            const baseSelect = document.getElementById('baseAttr');
+            const additionalSelect = document.getElementById('additionalAttr');
+            const skillSelect = document.getElementById('skillAttr');
+
+            attributes.base.forEach(attr => {
+                const option = document.createElement('option');
+                option.value = attr;
+                option.textContent = attr;
+                baseSelect.appendChild(option);
+            });
+
+            attributes.additional.forEach(attr => {
+                const option = document.createElement('option');
+                option.value = attr;
+                option.textContent = attr;
+                additionalSelect.appendChild(option);
+            });
+
+            attributes.skill.forEach(attr => {
+                const option = document.createElement('option');
+                option.value = attr;
+                option.textContent = attr;
+                skillSelect.appendChild(option);
+            });
+        }
+
+        // 查找匹配的武器
+        function findMatchingWeapon(base, additional, skill) {
+            return weaponsData.weapons.find(weapon => 
+                weapon.base_attribute === base &&
+                weapon.additional_attribute === additional &&
+                weapon.skill_attribute === skill
+            );
+        }
+
+        // 显示结果
+        function showResult(weapon) {
+            const resultDiv = document.getElementById('result');
+            
+            if (weapon) {
+                resultDiv.innerHTML = `
+                    <div class="result-header success">
+                        <span class="result-icon">✓</span>
+                        <span>匹配成功</span>
+                    </div>
+                    <div class="weapon-info">
+                        <div class="info-item">
+                            <span class="info-label">武器名称</span>
+                            <span class="info-value">${weapon.name}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">星级</span>
+                            <span class="info-value stars">${weapon.stars}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">类型</span>
+                            <span class="info-value">${weapon.type}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result-header failed">
+                        <span class="result-icon">✕</span>
+                        <span>无法匹配</span>
+                    </div>
+                    <div class="no-match">很抱歉，没有对应武器</div>
+                `;
+            }
+            
+            resultDiv.classList.add('show');
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('matchForm').reset();
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('show');
+            resultDiv.innerHTML = '';
+        }
+
+        // 表单提交处理
+        document.getElementById('matchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const base = document.getElementById('baseAttr').value;
+            const additional = document.getElementById('additionalAttr').value;
+            const skill = document.getElementById('skillAttr').value;
+
+            if (!base || !additional || !skill) {
+                alert('请选择所有属性！');
+                return;
+            }
+
+            const weapon = findMatchingWeapon(base, additional, skill);
+            showResult(weapon);
+
+            // 滚动到结果区域
+            setTimeout(() => {
+                document.getElementById('result').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+            }, 100);
+        });
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initSelects);
+    </script>
+</body>
+</html>
