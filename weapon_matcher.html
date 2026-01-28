@@ -87,6 +87,7 @@
             display: flex;
             gap: 10px;
             margin-top: 25px;
+            justify-content: center;
         }
 
         .btn {
@@ -99,6 +100,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
+            max-width: 200px;
         }
 
         .btn-primary {
@@ -290,7 +292,6 @@
                 </div>
 
                 <div class="button-group">
-                    <button type="submit" class="btn btn-primary">查询武器</button>
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">重置选择</button>
                 </div>
             </form>
@@ -559,30 +560,7 @@
             resultDiv.innerHTML = '';
         }
 
-        // 表单提交处理
-        document.getElementById('matchForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const base = document.getElementById('baseAttr').value;
-            const additional = document.getElementById('additionalAttr').value;
-            const skill = document.getElementById('skillAttr').value;
-
-            if (!base || !additional || !skill) {
-                alert('请选择所有属性！');
-                return;
-            }
-
-            const weapons = filterWeaponPool();
-            showResult(weapons);
-
-            // 滚动到结果区域
-            setTimeout(() => {
-                document.getElementById('result').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'nearest' 
-                });
-            }, 100);
-        });
+        // 表单提交处理（移除，改用实时监听）
 
         // 页面加载时初始化
         window.addEventListener('DOMContentLoaded', initSelects);
