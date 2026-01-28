@@ -1,0 +1,11 @@
+[build]
+  publish = "."
+  
+[[redirects]]
+  from = "/*"
+  to = "/weapon_matcher.html"
+  status = 200
+  force = false
+  
+[build.environment]
+  NODE_VERSION = "18"
