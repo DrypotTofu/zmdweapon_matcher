@@ -13,14 +13,14 @@ class WeaponMatcher:
             data = json.load(f)
         self.weapons = data['weapons']
     
-    def find_matching_weapon(
+    def find_matching_weapons(
         self, 
         substrate_base: str, 
         substrate_additional: str, 
         substrate_skill: str
-    ) -> Optional[Dict]:
+    ) -> List[Dict]:
         """
-        根据基质的三种属性查找完美匹配的武器
+        根据基质的三种属性查找所有完美匹配的武器
         
         Args:
             substrate_base: 基质的基础属性
@@ -28,18 +28,19 @@ class WeaponMatcher:
             substrate_skill: 基质的技能属性
         
         Returns:
-            如果找到完美匹配，返回包含武器信息的字典；否则返回None
+            返回包含所有匹配武器信息的列表；如果没有匹配则返回空列表
         """
+        matching_weapons = []
         for weapon in self.weapons:
             if (weapon['base_attribute'] == substrate_base and 
                 weapon['additional_attribute'] == substrate_additional and 
                 weapon['skill_attribute'] == substrate_skill):
-                return {
+                matching_weapons.append({
                     'name': weapon['name'],
                     'stars': weapon['stars'],
                     'type': weapon['type']
-                }
-        return None
+                })
+        return matching_weapons
     
     def match_substrate(
         self, 
@@ -58,10 +59,19 @@ class WeaponMatcher:
         Returns:
             匹配结果字符串
         """
-        result = self.find_matching_weapon(substrate_base, substrate_additional, substrate_skill)
+        results = self.find_matching_weapons(substrate_base, substrate_additional, substrate_skill)
         
-        if result:
-            return f"武器名称: {result['name']}\n星级: {result['stars']}\n类型: {result['type']}"
+        if results:
+            if len(results) == 1:
+                return f"武器名称: {results[0]['name']}\n星级: {results[0]['stars']}\n类型: {results[0]['type']}"
+            else:
+                output = f"找到 {len(results)} 个匹配的武器:\n" + "="*30 + "\n"
+                for i, weapon in enumerate(results, 1):
+                    output += f"\n武器 {i}:\n"
+                    output += f"  名称: {weapon['name']}\n"
+                    output += f"  星级: {weapon['stars']}\n"
+                    output += f"  类型: {weapon['type']}\n"
+                return output
         else:
             return "很抱歉，没有对应武器"
 

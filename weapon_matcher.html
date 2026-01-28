@@ -404,9 +404,9 @@
             });
         }
 
-        // 查找匹配的武器
-        function findMatchingWeapon(base, additional, skill) {
-            return weaponsData.weapons.find(weapon => 
+        // 查找所有匹配的武器
+        function findMatchingWeapons(base, additional, skill) {
+            return weaponsData.weapons.filter(weapon => 
                 weapon.base_attribute === base &&
                 weapon.additional_attribute === additional &&
                 weapon.skill_attribute === skill
@@ -414,29 +414,38 @@
         }
 
         // 显示结果
-        function showResult(weapon) {
+        function showResult(weapons) {
             const resultDiv = document.getElementById('result');
             
-            if (weapon) {
+            if (weapons && weapons.length > 0) {
+                let weaponInfoHTML = '';
+                
+                weapons.forEach((weapon, index) => {
+                    weaponInfoHTML += `
+                        <div class="weapon-info" style="${index > 0 ? 'margin-top: 15px;' : ''}">
+                            ${weapons.length > 1 ? `<div style="background: #667eea; color: white; padding: 8px 12px; border-radius: 8px; font-weight: 600; margin-bottom: 10px;">武器 ${index + 1}</div>` : ''}
+                            <div class="info-item">
+                                <span class="info-label">武器名称</span>
+                                <span class="info-value">${weapon.name}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">星级</span>
+                                <span class="info-value stars">${weapon.stars}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">类型</span>
+                                <span class="info-value">${weapon.type}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
                 resultDiv.innerHTML = `
                     <div class="result-header success">
                         <span class="result-icon">✓</span>
-                        <span>匹配成功</span>
+                        <span>匹配成功 ${weapons.length > 1 ? `(找到 ${weapons.length} 个武器)` : ''}</span>
                     </div>
-                    <div class="weapon-info">
-                        <div class="info-item">
-                            <span class="info-label">武器名称</span>
-                            <span class="info-value">${weapon.name}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">星级</span>
-                            <span class="info-value stars">${weapon.stars}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">类型</span>
-                            <span class="info-value">${weapon.type}</span>
-                        </div>
-                    </div>
+                    ${weaponInfoHTML}
                 `;
             } else {
                 resultDiv.innerHTML = `
@@ -472,8 +481,8 @@
                 return;
             }
 
-            const weapon = findMatchingWeapon(base, additional, skill);
-            showResult(weapon);
+            const weapons = findMatchingWeapons(base, additional, skill);
+            showResult(weapons);
 
             // 滚动到结果区域
             setTimeout(() => {
